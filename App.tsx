@@ -1,21 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import "react-native-gesture-handler";
+import React, { useEffect, useState } from "react";
+import Routes from "./src/rotes";
+import accessStorage, { IAlreadyLaunched } from "./src/utils/accessStorage";
+import { StatusBar } from "expo-status-bar";
+import { CoordinateProvider } from "./src/contexts/Coordinate";
+import {
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  useFonts,
+} from "@expo-google-fonts/nunito";
 
 export default function App() {
+  const [alreadyLaunched, setAlreadyLaunched] = useState<IAlreadyLaunched>({
+    ready: false,
+  });
+
+  useEffect(() => {
+    async function start() {
+      setAlreadyLaunched(await accessStorage.get("PedimusicaAlreadyLaunched"));
+    }
+
+    start();
+  }, []);
+
+  const [fontsLoaded] = useFonts({
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  console.log(alreadyLaunched);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
       <StatusBar style="auto" />
-    </View>
+      <CoordinateProvider>
+        <Routes alreadyLaunched={alreadyLaunched} />
+      </CoordinateProvider>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
